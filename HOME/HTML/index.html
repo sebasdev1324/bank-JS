@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6f1">
+    <title>TuBanco | Banca de práctica</title>
+    <link rel="stylesheet" href="../CSS/styles.css">
+    <script src="../JS/App.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="TuBanco, inicio">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>tu<span class="brand-light">banco</span></span>
+        </a>
+        <span id="environment-label" class="environment-label"><span class="status-dot"></span> Acceso de clientes</span>
+        <div id="dashboard-tools" class="topbar-actions" hidden>
+          <details class="header-menu" id="notifications-menu">
+            <summary class="icon-menu-button" aria-label="Notificaciones">
+              <span class="bell-icon" aria-hidden="true">◉</span>
+              <span id="notification-dot" class="notification-dot" hidden></span>
+            </summary>
+            <div class="menu-popover notification-popover">
+              <div class="popover-heading"><span>Actividad reciente</span><span id="notification-count">0</span></div>
+              <div id="notification-list" class="notification-list"></div>
+              <button class="popover-link" type="button" data-open-view="activity">Ver movimientos</button>
+            </div>
+          </details>
+          <details class="header-menu" id="account-menu">
+            <summary class="account-menu-trigger">
+              <span class="account-menu-copy"><span id="topbar-user-name"></span><small id="topbar-account-number"></small></span>
+              <span id="account-avatar" class="account-avatar" aria-hidden="true">C</span>
+            </summary>
+            <div class="menu-popover account-popover">
+              <button class="popover-link" type="button" data-open-view="security">Seguridad y contraseña</button>
+              <button id="logout-button" class="popover-link is-logout" type="button">Cerrar sesión</button>
+            </div>
+          </details>
+        </div>
+      </header>
+
+      <main>
+        <section id="auth-screen" class="auth-layout" aria-labelledby="auth-title">
+          <div class="intro-panel">
+            <p class="eyebrow">BANCA DIGITAL</p>
+            <h1 id="auth-title">Tus finanzas, listas para seguir avanzando.</h1>
+            <p class="intro-copy">Un espacio privado para consultar tu cuenta, mover fondos y atender tus servicios cotidianos.</p>
+            <div class="intro-rule"><span></span><span></span><span></span></div>
+            <ul class="access-highlights" aria-label="Servicios disponibles">
+              <li><span aria-hidden="true">01</span> Transferencias entre cuentas</li>
+              <li><span aria-hidden="true">02</span> Pagos y movimientos al instante</li>
+              <li><span aria-hidden="true">03</span> Acceso protegido a tu cuenta</li>
+            </ul>
+          </div>
+
+          <div class="auth-panel">
+            <div class="auth-heading">
+              <span class="section-kicker">TU ESPACIO PERSONAL</span>
+              <h2 id="auth-panel-title">Qué gusto verte</h2>
+              <p id="auth-panel-copy">Ingresa con tus datos para continuar.</p>
+            </div>
+
+            <div class="auth-tabs" role="tablist" aria-label="Acceso a la cuenta">
+              <button id="login-tab" class="auth-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="login-panel">Iniciar sesión</button>
+              <button id="register-tab" class="auth-tab" type="button" role="tab" aria-selected="false" aria-controls="register-panel">Crear cuenta</button>
+            </div>
+
+            <div id="auth-message" class="form-message" role="status" aria-live="polite"></div>
+
+            <form id="login-panel" class="auth-form" role="tabpanel" aria-labelledby="login-tab">
+              <label for="login-account">Número de cuenta</label>
+              <input id="login-account" name="accountNumber" inputmode="numeric" autocomplete="username" minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="Ingresa tus 10 dígitos" required>
+              <label for="login-password">Contraseña</label>
+              <div class="password-field">
+                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required>
+                <button class="visibility-toggle" type="button" aria-controls="login-password" aria-pressed="false">Mostrar</button>
+              </div>
+              <label class="remember-account"><input id="remember-account" type="checkbox"><span>Recordar número de cuenta en este dispositivo</span></label>
+              <button class="button button-primary" type="submit">Iniciar sesión <span aria-hidden="true">→</span></button>
+            </form>
+
+            <form id="register-panel" class="auth-form" role="tabpanel" aria-labelledby="register-tab" hidden>
+              <label for="register-name">Nombre completo</label>
+              <input id="register-name" name="fullName" autocomplete="name" maxlength="80" placeholder="Como quieres que te llamemos" required>
+              <label for="register-password">Contraseña</label>
+              <div class="password-field">
+                <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="12 caracteres o más" required>
+                <button class="visibility-toggle" type="button" aria-controls="register-password" aria-pressed="false">Mostrar</button>
+              </div>
+              <div class="password-strength">
+                <div class="strength-track" role="meter" aria-label="Fortaleza de la contraseña" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span id="password-strength-bar"></span></div>
+                <p id="password-strength-copy" aria-live="polite">Combina longitud, letras y números.</p>
+              </div>
+              <label for="register-confirm-password">Confirmar contraseña</label>
+              <div class="password-field">
+                <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Escríbela de nuevo" required>
+                <button class="visibility-toggle" type="button" aria-controls="register-confirm-password" aria-pressed="false">Mostrar</button>
+              </div>
+              <label for="register-balance">Saldo inicial</label>
+              <div class="money-input"><span aria-hidden="true">$</span><input id="register-balance" name="initialBalance" type="number" min="0" max="1000000" step="0.01" value="5000.00" inputmode="decimal" required></div>
+              <p class="field-hint">Aparecerá como el primer movimiento de la cuenta.</p>
+              <label for="register-invite-code">Código de invitación <span class="optional-label">Opcional</span></label>
+              <input id="register-invite-code" name="inviteCode" type="password" autocomplete="off" maxlength="128" placeholder="Si te proporcionaron uno">
+              <button class="button button-primary" type="submit">Crear cuenta de práctica <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="privacy-note">Tus datos se guardan localmente en este equipo.</p>
+          </div>
+        </section>
+
+        <section id="dashboard-screen" class="dashboard" aria-labelledby="dashboard-title" hidden>
+          <div class="dashboard-heading">
+            <div>
+              <p class="section-kicker">RESUMEN DE CUENTA</p>
+              <h1 id="dashboard-title">Hola, <span id="user-name"></span></h1>
+            </div>
+          </div>
+
+          <div id="dashboard-message" class="form-message" role="status" aria-live="polite"></div>
+
+          <nav class="dashboard-nav" role="tablist" aria-label="Secciones de la cuenta">
+            <button class="dashboard-nav-button is-active" type="button" role="tab" aria-selected="true" aria-controls="overview-view" data-view-target="overview">Resumen</button>
+            <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="services-view" data-view-target="services">Servicios</button>
+            <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="activity-view" data-view-target="activity">Movimientos</button>
+            <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="security-view" data-view-target="security">Seguridad</button>
+          </nav>
+
+          <section id="overview-view" class="dashboard-view" data-dashboard-view="overview" role="tabpanel">
+          <section class="account-overview" aria-label="Saldo y número de cuenta">
+            <div class="balance-content">
+              <p class="balance-label">Saldo disponible <span class="demo-badge">CUENTA ACTIVA</span><button id="balance-visibility" class="balance-visibility" type="button" aria-label="Ocultar saldo" aria-pressed="false"><span aria-hidden="true">◉</span></button></p>
+              <p id="user-balance" class="balance-amount">$0.00</p>
+              <p class="account-number-label">CUENTA <span id="user-account-number"></span></p>
+            </div>
+            <div class="overview-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          </section>
+
+          <section class="quick-actions" aria-label="Accesos rápidos">
+            <button class="quick-action" type="button" data-quick-action="transfer"><span class="quick-action-icon transfer-icon" aria-hidden="true">↗</span><span>Transferir</span></button>
+            <button class="quick-action" type="button" data-quick-action="deposit"><span class="quick-action-icon deposit-icon" aria-hidden="true">＋</span><span>Depositar</span></button>
+            <button class="quick-action" type="button" data-quick-action="withdraw"><span class="quick-action-icon withdraw-icon" aria-hidden="true">−</span><span>Retirar</span></button>
+            <button class="quick-action" type="button" data-quick-action="payment"><span class="quick-action-icon payment-icon" aria-hidden="true">▤</span><span>Pagar servicio</span></button>
+          </section>
+
+          <section id="operations-section" class="operations-section" aria-labelledby="operations-title">
+            <div class="history-heading">
+              <div>
+                <p class="section-kicker">GESTIÓN DE CUENTA</p>
+                <h2 id="operations-title">Nueva operación</h2>
+              </div>
+            </div>
+            <div id="operation-message" class="form-message" role="status" aria-live="polite"></div>
+            <form id="transaction-form" class="transaction-form">
+              <div class="operation-field">
+                <label for="transaction-type">Operación</label>
+                <select id="transaction-type" name="type">
+                  <option value="deposit">Depósito</option>
+                  <option value="withdraw">Retiro</option>
+                  <option value="transfer">Transferencia</option>
+                  <option value="payment">Pago de servicio</option>
+                </select>
+              </div>
+              <div id="target-account-field" class="operation-field" hidden>
+                <label for="target-account">Cuenta destino</label>
+                <input id="target-account" name="targetAccountNumber" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10 dígitos">
+              </div>
+              <div id="service-name-field" class="operation-field" hidden>
+                <label for="service-name">Servicio</label>
+                <select id="service-name" name="serviceName">
+                  <option value="">Selecciona un servicio</option>
+                  <option value="Agua">Agua</option>
+                  <option value="Electricidad">Electricidad</option>
+                  <option value="Gas">Gas</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Telefonía móvil">Telefonía móvil</option>
+                </select>
+              </div>
+              <div id="service-reference-field" class="operation-field" hidden>
+                <label for="service-reference">Referencia de cliente</label>
+                <input id="service-reference" name="serviceReference" maxlength="32" placeholder="Ej. CLI-40218">
+              </div>
+              <div class="operation-field">
+                <label for="transaction-amount">Importe</label>
+                <div class="money-input"><span aria-hidden="true">$</span><input id="transaction-amount" name="amount" type="number" min="0.01" max="1000000" step="0.01" placeholder="0.00" inputmode="decimal" required></div>
+              </div>
+              <button class="button button-primary operation-submit" type="submit">Confirmar operación <span aria-hidden="true">→</span></button>
+            </form>
+          </section>
+          </section>
+
+          <dialog id="transaction-confirmation" class="transaction-dialog confirmation-dialog" aria-labelledby="confirmation-title">
+            <div id="transaction-confirmation-form">
+              <button id="cancel-transaction-confirmation" class="dialog-close" type="button" aria-label="Cancelar operación">×</button>
+              <p class="section-kicker">REVISA LOS DATOS</p>
+              <h2 id="confirmation-title">Confirmar operación</h2>
+              <p class="confirmation-intro">Verifica el importe y la cuenta antes de continuar.</p>
+              <dl class="receipt-details confirmation-details">
+                <div><dt>Operación</dt><dd id="confirmation-type"></dd></div>
+                <div><dt>Cuenta de origen</dt><dd id="confirmation-source"></dd></div>
+                <div id="confirmation-target-row" hidden><dt>Cuenta destino</dt><dd id="confirmation-target"></dd></div>
+                <div id="confirmation-service-row" hidden><dt>Servicio</dt><dd id="confirmation-service"></dd></div>
+                <div id="confirmation-reference-row" hidden><dt>Referencia de cliente</dt><dd id="confirmation-reference"></dd></div>
+                <div><dt>Importe</dt><dd id="confirmation-amount"></dd></div>
+              </dl>
+              <div class="confirmation-actions">
+                <button class="button button-quiet" type="button" data-cancel-transaction>Cancelar</button>
+                <button id="confirm-transaction" class="button button-primary" type="button">Confirmar operación</button>
+              </div>
+            </div>
+          </dialog>
+
+          <section id="services-view" class="dashboard-view services-view" data-dashboard-view="services" role="tabpanel" hidden>
+            <div class="view-heading">
+              <div>
+                <p class="section-kicker">PAGOS Y RECARGAS</p>
+                <h2>Servicios</h2>
+              </div>
+              <span class="service-count">5 opciones</span>
+            </div>
+            <div class="service-grid">
+              <button class="service-card" type="button" data-service-picker="Agua"><span class="service-icon service-water" aria-hidden="true">≈</span><span class="service-card-copy"><strong>Agua</strong><small>Factura mensual</small></span><span class="service-arrow" aria-hidden="true">↗</span></button>
+              <button class="service-card" type="button" data-service-picker="Electricidad"><span class="service-icon service-power" aria-hidden="true">ϟ</span><span class="service-card-copy"><strong>Electricidad</strong><small>Factura mensual</small></span><span class="service-arrow" aria-hidden="true">↗</span></button>
+              <button class="service-card" type="button" data-service-picker="Gas"><span class="service-icon service-gas" aria-hidden="true">◒</span><span class="service-card-copy"><strong>Gas</strong><small>Factura mensual</small></span><span class="service-arrow" aria-hidden="true">↗</span></button>
+              <button class="service-card" type="button" data-service-picker="Internet"><span class="service-icon service-internet" aria-hidden="true">⌁</span><span class="service-card-copy"><strong>Internet</strong><small>Hogar y datos</small></span><span class="service-arrow" aria-hidden="true">↗</span></button>
+              <button class="service-card" type="button" data-service-picker="Telefonía móvil"><span class="service-icon service-mobile" aria-hidden="true">▯</span><span class="service-card-copy"><strong>Telefonía móvil</strong><small>Recarga y factura</small></span><span class="service-arrow" aria-hidden="true">↗</span></button>
+            </div>
+          </section>
+
+          <section id="security-view" class="dashboard-view security-view" data-dashboard-view="security" role="tabpanel" hidden>
+          <details class="security-settings">
+            <summary>Cambiar contraseña</summary>
+            <div id="password-message" class="form-message" role="status" aria-live="polite"></div>
+            <form id="change-password-form" class="password-form">
+              <div class="password-setting-field">
+                <label for="current-password">Contraseña actual</label>
+                <div class="password-field">
+                  <input id="current-password" name="currentPassword" type="password" autocomplete="current-password" required>
+                  <button class="visibility-toggle" type="button" aria-controls="current-password" aria-pressed="false">Mostrar</button>
+                </div>
+              </div>
+              <div class="password-setting-field">
+                <label for="new-password">Nueva contraseña</label>
+                <div class="password-field">
+                  <input id="new-password" name="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+                  <button class="visibility-toggle" type="button" aria-controls="new-password" aria-pressed="false">Mostrar</button>
+                </div>
+              </div>
+              <div class="password-setting-field">
+                <label for="confirm-password">Confirmar nueva contraseña</label>
+                <div class="password-field">
+                  <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+                  <button class="visibility-toggle" type="button" aria-controls="confirm-password" aria-pressed="false">Mostrar</button>
+                </div>
+              </div>
+              <button class="button button-quiet" type="submit">Actualizar contraseña</button>
+            </form>
+          </details>
+          </section>
+
+          <section id="activity-view" class="dashboard-view activity-view" data-dashboard-view="activity" role="tabpanel" hidden>
+          <section class="history-section" aria-labelledby="history-title">
+            <div class="history-heading">
+              <div>
+                <p class="section-kicker">ACTIVIDAD RECIENTE</p>
+                <h2 id="history-title">Movimientos</h2>
+              </div>
+              <span id="transaction-count" class="transaction-count">0 movimientos</span>
+            </div>
+            <div class="activity-tools">
+              <div class="history-filters" role="group" aria-label="Filtrar movimientos">
+                <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">Todos</button>
+                <button class="filter-button" type="button" data-filter="credit" aria-pressed="false">Abonos</button>
+                <button class="filter-button" type="button" data-filter="debit" aria-pressed="false">Cargos</button>
+              </div>
+              <label class="history-search" for="history-search">
+                <span class="search-symbol" aria-hidden="true">⌕</span>
+                <input id="history-search" type="search" placeholder="Buscar por referencia o descripción">
+              </label>
+            </div>
+            <div id="history-list" class="history-list"></div>
+          </section>
+          </section>
+          <dialog id="transaction-dialog" class="transaction-dialog" aria-labelledby="receipt-title">
+            <form method="dialog" class="dialog-close-form">
+              <button class="dialog-close" aria-label="Cerrar comprobante">×</button>
+            </form>
+            <p class="section-kicker">DETALLE DE OPERACIÓN</p>
+            <h2 id="receipt-title">Comprobante</h2>
+            <dl class="receipt-details">
+              <div><dt>Referencia</dt><dd id="receipt-reference"></dd></div>
+              <div><dt>Operación</dt><dd id="receipt-type"></dd></div>
+              <div><dt>Fecha</dt><dd id="receipt-date"></dd></div>
+              <div><dt>Descripción</dt><dd id="receipt-description"></dd></div>
+              <div><dt>Importe</dt><dd id="receipt-amount"></dd></div>
+            </dl>
+          </dialog>
+          <p class="disclaimer">Entorno local de pruebas.</p>
+        </section>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Un espacio para aprender con tranquilidad</span></footer>
+    </div>
+  </body>
+</html>
