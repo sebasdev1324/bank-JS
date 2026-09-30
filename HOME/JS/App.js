@@ -21,6 +21,7 @@ const serviceReference = document.querySelector('#service-reference');
 const currency = new Intl.NumberFormat('es-US', { style: 'currency', currency: 'USD' });
 const transactionDialog = document.querySelector('#transaction-dialog');
 const transactionConfirmation = document.querySelector('#transaction-confirmation');
+const themeChoiceButtons = [...document.querySelectorAll('[data-theme-choice]')];
 let dashboardRefreshTimer = null;
 let currentTransactions = [];
 let activeTransactionFilter = 'all';
@@ -28,6 +29,30 @@ let transactionSearchTerm = '';
 let pendingTransaction = null;
 let lastTransactionAttempt = null;
 let balanceIsVisible = true;
+
+function applyTheme(theme, persist = true) {
+	const selectedTheme = theme === 'dark' ? 'dark' : 'light';
+	document.documentElement.dataset.theme = selectedTheme;
+	for (const button of themeChoiceButtons) {
+		const isSelected = button.dataset.themeChoice === selectedTheme;
+		button.classList.toggle('is-selected', isSelected);
+		button.setAttribute('aria-checked', String(isSelected));
+		button.tabIndex = isSelected ? 0 : -1;
+	}
+	if (!persist) return;
+	try {
+		localStorage.setItem('tubanco.theme', selectedTheme);
+		document.querySelector('#theme-save-status').textContent = 'Preferencia guardada en este dispositivo.';
+	} catch {
+		document.querySelector('#theme-save-status').textContent = 'No se pudo guardar la preferencia en este navegador.';
+	}
+}
+
+try {
+	applyTheme(localStorage.getItem('tubanco.theme') ?? 'light', false);
+} catch {
+	applyTheme('light', false);
+}
 
 try {
 	const rememberedAccountNumber = localStorage.getItem('tubanco.account-number');
@@ -343,6 +368,17 @@ function updateTransactionFields() {
 loginTab.addEventListener('click', () => selectAuthTab(loginTab));
 registerTab.addEventListener('click', () => selectAuthTab(registerTab));
 transactionType.addEventListener('change', updateTransactionFields);
+themeChoiceButtons.forEach((button, index) => {
+	button.addEventListener('click', () => applyTheme(button.dataset.themeChoice));
+	button.addEventListener('keydown', (event) => {
+		if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+		event.preventDefault();
+		const direction = event.key === 'ArrowRight' ? 1 : -1;
+		const nextIndex = (index + direction + themeChoiceButtons.length) % themeChoiceButtons.length;
+		themeChoiceButtons[nextIndex].focus();
+		themeChoiceButtons[nextIndex].click();
+	});
+});
 document.querySelectorAll('[data-view-target]').forEach((button) => {
 	button.addEventListener('click', () => showDashboardView(button.dataset.viewTarget));
 });

@@ -48,6 +48,21 @@ La base se crea automáticamente en `data/bank.sqlite` y se comparte entre clien
 
 ## Beta online privada
 
+Sí se puede conectar a testers fuera de tu Wi-Fi, pero no publiques este servidor HTTP directamente ni abras el puerto 3000 en el router. Una opción sencilla es un túnel HTTPS (por ejemplo, Cloudflare Tunnel) protegido por una política de acceso que permita solo los correos de tus testers. El túnel debe apuntar a `http://127.0.0.1:3000`; el tráfico público termina en HTTPS y el origen permanece local.
+
+Configura estas variables en el gestor de secretos del host, nunca en el repositorio:
+
+- `NODE_ENV=production`
+- `HOST=127.0.0.1` para un túnel que corre en el mismo equipo; en contenedores se puede requerir `0.0.0.0` detrás del proxy
+- `TRUST_PROXY=loopback` si el proxy corre localmente; si está en otro host, usa su IP/rango privado exacto, nunca `true`
+- `REGISTRATION_CODE` con un valor aleatorio que compartirás solo con los testers
+
+El servidor se niega a iniciar en producción sin invitación y proxy configurados, rechaza solicitudes que no lleguen marcadas como HTTPS y usa cookies `Secure`, Helmet, validación de origen y límites de intentos. El proxy debe conservar el host público y enviar `X-Forwarded-Proto: https`. El cliente web debe servirse desde el mismo origen; no habilites CORS con comodín.
+
+Mantén la beta en una sola instancia con almacenamiento persistente para `data/bank.sqlite`. El limitador actual guarda contadores en memoria, así que al reiniciar se reinician los cupos; para varias instancias usa Redis y una base compartida. Estas medidas son una base para pruebas privadas, no sustituyen una auditoría antes de manejar datos o fondos reales.
+
+## Beta online privada
+
 No publiques el puerto 3000 directamente en el router ni habilites acceso desde redes públicas. Para invitar a unos pocos clientes, usa un túnel HTTPS con una política de acceso (por ejemplo, Cloudflare Tunnel más Cloudflare Access con correos permitidos) o un proxy HTTPS equivalente. El túnel debe llegar al servidor local; no hace falta abrir el puerto al exterior.
 
 Configura las variables desde el panel de secretos del proveedor, nunca dentro del repositorio:

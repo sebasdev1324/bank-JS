@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f4f6f1">
     <title>TuBanco | Banca de práctica</title>
-    <link rel="stylesheet" href="../CSS/styles.css">
+    <link rel="stylesheet" href="../CSS/styles.css?v=20260930-2">
     <script src="../JS/App.js" defer></script>
   </head>
   <body>
@@ -124,6 +124,7 @@
             <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="services-view" data-view-target="services">Servicios</button>
             <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="activity-view" data-view-target="activity">Movimientos</button>
             <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="security-view" data-view-target="security">Seguridad</button>
+            <button class="dashboard-nav-button" type="button" role="tab" aria-selected="false" aria-controls="settings-view" data-view-target="settings">Configuración</button>
           </nav>
 
           <section id="overview-view" class="dashboard-view" data-dashboard-view="overview" role="tabpanel">
@@ -256,6 +257,32 @@
               <button class="button button-quiet" type="submit">Actualizar contraseña</button>
             </form>
           </details>
+          </section>
+
+          <section id="settings-view" class="dashboard-view settings-view" data-dashboard-view="settings" role="tabpanel" hidden>
+            <div class="view-heading">
+              <div>
+                <p class="section-kicker">PREFERENCIAS</p>
+                <h2>Configuración</h2>
+              </div>
+            </div>
+            <section class="settings-panel" aria-labelledby="appearance-title">
+              <div class="settings-panel-copy">
+                <h3 id="appearance-title">Apariencia</h3>
+                <p>Elige entre fondo claro y oscuro. La selección se recuerda en este dispositivo.</p>
+              </div>
+              <div class="theme-options" role="radiogroup" aria-labelledby="appearance-title">
+                <button class="theme-option is-selected" type="button" role="radio" aria-checked="true" data-theme-choice="light" tabindex="0">
+                  <span class="theme-swatch theme-swatch-light" aria-hidden="true"><span></span></span>
+                  <span>Claro</span>
+                </button>
+                <button class="theme-option" type="button" role="radio" aria-checked="false" data-theme-choice="dark" tabindex="-1">
+                  <span class="theme-swatch theme-swatch-dark" aria-hidden="true"><span></span></span>
+                  <span>Oscuro</span>
+                </button>
+              </div>
+              <p id="theme-save-status" class="theme-save-status" role="status" aria-live="polite">Preferencia guardada en este dispositivo.</p>
+            </section>
           </section>
 
           <section id="activity-view" class="dashboard-view activity-view" data-dashboard-view="activity" role="tabpanel" hidden>
