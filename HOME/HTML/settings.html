@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f2f4f3"><title>Configuración | TuBanco</title><link rel="stylesheet" href="../CSS/styles.css?v=20261002-2"><script src="../JS/Dashboard.js?v=20261002-1" defer></script></head>
+  <body data-page="settings"><div class="app-shell">
+    <header class="topbar"><a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a><nav class="dashboard-nav" aria-label="Navegación principal"><a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a><a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a><a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a><a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a></nav><details class="header-menu" id="account-menu"><summary class="account-menu-trigger"><span class="account-menu-copy"><span data-user-name></span><small>Cuenta <span data-account-number></span></small></span><span class="account-avatar" data-user-initial aria-hidden="true">C</span></summary><div class="menu-popover account-popover"><a class="popover-link" href="/HTML/security.html">Seguridad</a><a class="popover-link" href="/HTML/settings.html">Configuración</a><button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button></div></details></header>
+    <main class="dashboard"><div class="dashboard-heading"><div><p class="section-kicker">PREFERENCIAS</p><h1>Configuración</h1></div></div><p class="form-message" data-page-message role="status" aria-live="polite"></p><p class="settings-description">Personaliza tu experiencia en este dispositivo.</p>
+      <section class="settings-section" aria-labelledby="appearance-title">
+        <div class="settings-section-heading"><span class="settings-index">01</span><div><h2 id="appearance-title">Apariencia</h2><p>Define el tema y los colores de TuBanco.</p></div></div>
+        <div class="settings-controls">
+          <div class="setting-group"><h3>Tema</h3><div class="theme-options" role="radiogroup" aria-label="Tema de la aplicación">
+            <button class="theme-option" type="button" role="radio" aria-checked="false" data-theme-choice="light" tabindex="-1"><span class="theme-swatch theme-swatch-light"><span></span><span></span></span><span>Claro</span></button>
+            <button class="theme-option" type="button" role="radio" aria-checked="false" data-theme-choice="dark" tabindex="-1"><span class="theme-swatch theme-swatch-dark"><span></span><span></span></span><span>Oscuro</span></button>
+            <button class="theme-option" type="button" role="radio" aria-checked="false" data-theme-choice="system" tabindex="-1"><span class="theme-swatch theme-swatch-system"><span></span><span></span></span><span>Sistema</span></button>
+          </div></div>
+          <div class="setting-group"><h3>Color de acento</h3><p class="setting-help">Cambia el color de botones y elementos destacados.</p><div class="accent-options" role="radiogroup" aria-label="Color de acento">
+            <button class="accent-option" type="button" role="radio" aria-checked="false" data-accent-choice="blue"><span class="accent-swatch accent-blue"></span><span>Azul</span></button>
+            <button class="accent-option" type="button" role="radio" aria-checked="false" data-accent-choice="coral"><span class="accent-swatch accent-coral"></span><span>Coral</span></button>
+            <button class="accent-option" type="button" role="radio" aria-checked="false" data-accent-choice="green"><span class="accent-swatch accent-green"></span><span>Verde</span></button>
+          </div></div>
+        </div>
+      </section>
+      <section class="settings-section" aria-labelledby="privacy-title">
+        <div class="settings-section-heading"><span class="settings-index">02</span><div><h2 id="privacy-title">Privacidad</h2><p>Controla qué información se muestra y recuerda el dispositivo.</p></div></div>
+        <div class="settings-controls setting-switches">
+          <label class="setting-row"><span><strong>Ocultar saldo</strong><small>Enmascara el saldo en las pantallas de la cuenta.</small></span><input name="hideBalance" type="checkbox" role="switch"></label>
+          <label class="setting-row"><span><strong>Recordar número de cuenta</strong><small>Guarda el número en este navegador para el próximo acceso.</small></span><input name="rememberAccount" type="checkbox" role="switch"></label>
+        </div>
+      </section>
+      <section class="settings-section" aria-labelledby="motion-title">
+        <div class="settings-section-heading"><span class="settings-index">03</span><div><h2 id="motion-title">Animaciones y accesibilidad</h2><p>Elige cómo se mueven las transiciones de pantalla.</p></div></div>
+        <div class="settings-controls setting-group"><h3>Estilo de movimiento</h3><div class="choice-options" role="radiogroup" aria-label="Estilo de animaciones">
+          <button class="choice-option" type="button" role="radio" aria-checked="false" data-animation-choice="none"><strong>Sin movimiento</strong><small>Reduce las transiciones al mínimo.</small></button>
+          <button class="choice-option" type="button" role="radio" aria-checked="false" data-animation-choice="subtle"><strong>Suave</strong><small>Transiciones breves y discretas.</small></button>
+          <button class="choice-option" type="button" role="radio" aria-checked="false" data-animation-choice="expressive"><strong>Dinámica</strong><small>Entradas más visibles al cambiar de página.</small></button>
+        </div></div>
+      </section>
+      <section class="settings-section" aria-labelledby="layout-title">
+        <div class="settings-section-heading"><span class="settings-index">04</span><div><h2 id="layout-title">Vista y navegación</h2><p>Personaliza el primer contenido y el espacio entre movimientos.</p></div></div>
+        <div class="settings-controls">
+          <div class="setting-group"><h3>Página inicial después de entrar</h3><div class="choice-options compact-choices" role="radiogroup" aria-label="Página inicial">
+            <button class="choice-option" type="button" role="radio" aria-checked="false" data-start-page="dashboard"><strong>Resumen</strong><small>Saldo y actividad reciente.</small></button>
+            <button class="choice-option" type="button" role="radio" aria-checked="false" data-start-page="activity"><strong>Movimientos</strong><small>Historial de la cuenta.</small></button>
+            <button class="choice-option" type="button" role="radio" aria-checked="false" data-start-page="operations"><strong>Operaciones</strong><small>Accesos para mover fondos.</small></button>
+          </div></div>
+          <div class="setting-group"><h3>Densidad de movimientos</h3><div class="choice-options compact-choices" role="radiogroup" aria-label="Densidad de movimientos">
+            <button class="choice-option" type="button" role="radio" aria-checked="false" data-density-choice="comfortable"><strong>Espaciosa</strong><small>Más separación para leer.</small></button>
+            <button class="choice-option" type="button" role="radio" aria-checked="false" data-density-choice="compact"><strong>Compacta</strong><small>Más movimientos en pantalla.</small></button>
+          </div></div>
+        </div>
+      </section>
+      <section class="settings-section export-section" aria-labelledby="data-title">
+        <div class="settings-section-heading"><span class="settings-index">05</span><div><h2 id="data-title">Tus datos</h2><p>Descarga el historial o restablece las preferencias de este dispositivo.</p></div></div>
+        <div class="settings-controls data-actions"><button class="button button-quiet" type="button" data-export-transactions>Descargar movimientos CSV <span aria-hidden="true">↓</span></button><button class="button button-quiet" type="button" data-reset-settings>Restablecer preferencias</button></div>
+      </section>
+      <p class="theme-save-status" data-preference-status role="status" aria-live="polite">Las preferencias se guardan en este dispositivo.</p>
+    </main><footer class="page-footer"><span>TuBanco</span><span>Un espacio para aprender con tranquilidad</span></footer></div></body>
+</html>

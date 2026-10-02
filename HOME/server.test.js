@@ -49,6 +49,24 @@ async function api(route, { method = 'GET', body, cookie, idempotencyKey, origin
   };
 }
 
+test('routes the app entry to separate login and registration pages', async () => {
+  for (const route of ['/', '/HTML/']) {
+    const response = await fetch(`${baseUrl}${route}`, { redirect: 'manual' });
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get('location'), '/HTML/login.html');
+  }
+
+  const loginPage = await fetch(`${baseUrl}/HTML/login.html`);
+  const registrationPage = await fetch(`${baseUrl}/HTML/register.html`);
+  const storePage = await fetch(`${baseUrl}/HTML/store.html`);
+  assert.equal(loginPage.status, 200);
+  assert.equal(registrationPage.status, 200);
+  assert.equal(storePage.status, 200);
+  assert.match(await loginPage.text(), /data-auth-page="login"/);
+  assert.match(await registrationPage.text(), /data-auth-page="register"/);
+  assert.match(await storePage.text(), /data-page="store"/);
+});
+
 test('registers a demo account and records the opening balance', async () => {
   const { response, data, cookie } = await api('/api/register', {
     method: 'POST',
@@ -235,6 +253,200 @@ test('pays an allowed service and rejects invalid or unaffordable payments', asy
   const history = await api('/api/transactions', { cookie: account.cookie });
   assert.equal(history.data.transactions.filter((item) => item.type === 'payment').length, 1);
   assert.equal(history.data.transactions[0].description, 'Pago Internet · CLI-40218');
+});
+
+test('sells demo products using server prices and prevents duplicate or invalid purchases', async () => {
+  const account = await api('/api/register', {
+    method: 'POST',
+    body: { fullName: 'Cliente Tienda', password: 'tienda-segura-123', initialBalance: '100.00' },
+  });
+
+  const anonymousCatalog = await api('/api/store/products');
+  assert.equal(anonymousCatalog.response.status, 401);
+
+  const catalog = await api('/api/store/products', { cookie: account.cookie });
+  assert.equal(catalog.response.status, 200);
+  assert.ok(catalog.data.products.some((product) => product.id === 'taza-termica'));
+
+  const purchaseRequest = {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-purchase-cart-0001',
+    body: {
+      type: 'purchase',
+      amount: '0.01',
+      items: [{ productId: 'taza-termica', quantity: 2 }],
+    },
+  };
+  const purchase = await api('/api/transactions', purchaseRequest);
+  assert.equal(purchase.response.status, 201);
+  assert.equal(purchase.data.user.balanceCents, 5002);
+  assert.ok(Number.isSafeInteger(purchase.data.transactionId));
+
+  const retry = await api('/api/transactions', purchaseRequest);
+  assert.equal(retry.response.status, 200);
+  assert.equal(retry.data.user.balanceCents, 5002);
+
+  const reusedKey = await api('/api/transactions', {
+    ...purchaseRequest,
+    body: { type: 'purchase', items: [{ productId: 'taza-termica', quantity: 1 }] },
+  });
+  assert.equal(reusedKey.response.status, 409);
+
+  const invalidProduct = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-purchase-invalid-01',
+    body: { type: 'purchase', items: [{ productId: 'producto-inventado', quantity: 1 }] },
+  });
+  assert.equal(invalidProduct.response.status, 400);
+
+  const unaffordable = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-purchase-expensive-1',
+    body: { type: 'purchase', items: [{ productId: 'audifonos-bluetooth', quantity: 2 }] },
+  });
+  assert.equal(unaffordable.response.status, 400);
+
+  const history = await api('/api/transactions', { cookie: account.cookie });
+  const purchases = history.data.transactions.filter((item) => item.type === 'purchase');
+  assert.equal(purchases.length, 1);
+  assert.equal(purchases[0].id, purchase.data.transactionId);
+  assert.equal(purchases[0].amountCents, 4998);
+  assert.match(purchases[0].description, /2 × Taza térmica/);
+
+  const cardFunding = await api('/api/card/transfers', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-card-funding-demo-01',
+    body: { amount: '30.00' },
+  });
+  assert.equal(cardFunding.response.status, 201);
+  const fundedCard = await api('/api/card', { cookie: account.cookie });
+
+  const cardPurchase = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-virtual-card-test-01',
+    body: {
+      type: 'purchase',
+      paymentMethod: 'virtual-card',
+      cardCvv: fundedCard.data.card.cvv,
+      items: [{ productId: 'taza-termica', quantity: 1 }],
+    },
+  });
+  assert.equal(cardPurchase.response.status, 201);
+  assert.equal(cardPurchase.data.user.balanceCents, 2002);
+  assert.equal(cardPurchase.data.cardBalanceCents, 501);
+  const cardReceipt = await api(`/api/transactions/${cardPurchase.data.transactionId}`, { cookie: account.cookie });
+  assert.equal(cardReceipt.response.status, 200);
+  assert.match(cardReceipt.data.transaction.description, /tarjeta virtual/);
+  assert.doesNotMatch(JSON.stringify(cardReceipt.data), new RegExp(fundedCard.data.card.cvv));
+
+  const invalidCardCvv = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-virtual-card-invalid-1',
+    body: {
+      type: 'purchase',
+      paymentMethod: 'virtual-card',
+      cardCvv: '000',
+      items: [{ productId: 'cuaderno-viaje', quantity: 1 }],
+    },
+  });
+  assert.equal(invalidCardCvv.response.status, 400);
+
+  const insufficientCardFunds = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-virtual-card-low-01',
+    body: {
+      type: 'purchase',
+      paymentMethod: 'virtual-card',
+      cardCvv: (await api('/api/card', { cookie: account.cookie })).data.card.cvv,
+      items: [{ productId: 'taza-termica', quantity: 2 }],
+    },
+  });
+  assert.equal(insufficientCardFunds.response.status, 400);
+
+  const invalidMethod = await api('/api/transactions', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'store-payment-method-01',
+    body: { type: 'purchase', paymentMethod: 'unknown', items: [{ productId: 'taza-termica', quantity: 1 }] },
+  });
+  assert.equal(invalidMethod.response.status, 400);
+
+  const receipt = await api(`/api/transactions/${purchase.data.transactionId}`, { cookie: account.cookie });
+  assert.equal(receipt.response.status, 200);
+  assert.equal(receipt.data.transaction.type, 'purchase');
+  assert.equal((await api('/api/me', { cookie: account.cookie })).data.user.balanceCents, 2002);
+});
+
+test('keeps virtual-card balance separate and rotates its demo CVV', async () => {
+  const account = await api('/api/register', {
+    method: 'POST',
+    body: { fullName: 'Cliente Tarjeta', password: 'tarjeta-segura-123', initialBalance: '50.00' },
+  });
+  const anonymousCard = await api('/api/card');
+  assert.equal(anonymousCard.response.status, 401);
+
+  const initialCard = await api('/api/card', { cookie: account.cookie });
+  assert.equal(initialCard.response.status, 200);
+  assert.match(initialCard.data.card.cardNumber, /^9999\d{12}$/);
+  assert.equal(initialCard.data.card.balanceCents, 0);
+  assert.match(initialCard.data.card.cvv, /^\d{3}$/);
+  assert.equal(initialCard.data.card.isDemo, true);
+
+  const originalNow = Date.now;
+  let cardAtNextMinute;
+  try {
+    const minute = Math.floor(originalNow() / 60_000) * 60_000;
+    Date.now = () => minute + 1000;
+    const firstMinute = await api('/api/card', { cookie: account.cookie });
+    Date.now = () => minute + 60_000;
+    cardAtNextMinute = await api('/api/card', { cookie: account.cookie });
+    assert.notEqual(firstMinute.data.card.cvv, cardAtNextMinute.data.card.cvv);
+  } finally {
+    Date.now = originalNow;
+  }
+
+  const transferRequest = {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'card-funding-transfer-01',
+    body: { amount: '12.34' },
+  };
+  const transfer = await api('/api/card/transfers', transferRequest);
+  assert.equal(transfer.response.status, 201);
+  assert.equal(transfer.data.user.balanceCents, 3766);
+  assert.equal(transfer.data.cardBalanceCents, 1234);
+
+  const retry = await api('/api/card/transfers', transferRequest);
+  assert.equal(retry.response.status, 200);
+  assert.equal(retry.data.user.balanceCents, 3766);
+  assert.equal(retry.data.cardBalanceCents, 1234);
+
+  const insufficient = await api('/api/card/transfers', {
+    method: 'POST',
+    cookie: account.cookie,
+    idempotencyKey: 'card-funding-insufficient-1',
+    body: { amount: '40.00' },
+  });
+  assert.equal(insufficient.response.status, 400);
+
+  const history = await api('/api/transactions', { cookie: account.cookie });
+  const currentCard = await api('/api/card', { cookie: account.cookie });
+  assert.equal(currentCard.data.card.balanceCents, 1234);
+  assert.equal(currentCard.data.card.cardNumber, initialCard.data.card.cardNumber);
+  assert.equal((await api('/api/me', { cookie: account.cookie })).data.user.balanceCents, 3766);
+  const cardTransfers = history.data.transactions.filter((item) => item.type === 'card_funding');
+  assert.equal(cardTransfers.length, 1);
+  assert.equal(history.data.transactions.filter((item) => item.type === 'purchase').length, 0);
+  const transferReceipt = await api(`/api/transactions/${cardTransfers[0].id}`, { cookie: account.cookie });
+  assert.equal(transferReceipt.response.status, 200);
+  assert.match(transferReceipt.data.transaction.description, /tarjeta virtual/);
 });
 
 test('deduplicates concurrent transaction retries and rejects key reuse with different data', async () => {

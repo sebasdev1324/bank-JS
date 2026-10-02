@@ -12,6 +12,14 @@ const sessionCookie = 'bank_session';
 const sessionLifetime = process.env.NODE_ENV === 'production' ? 12 * 60 * 60 : 7 * 24 * 60 * 60;
 const maximumOpeningBalance = 100_000_000;
 const paymentServiceNames = new Set(['Agua', 'Electricidad', 'Gas', 'Internet', 'Telefonía móvil']);
+const storeProducts = [
+  { id: 'taza-termica', name: 'Taza térmica', category: 'Hogar', description: 'Acero reutilizable, 400 ml', priceCents: 2499 },
+  { id: 'cuaderno-viaje', name: 'Cuaderno de viaje', category: 'Papelería', description: 'Tapa dura, 160 páginas', priceCents: 1299 },
+  { id: 'audifonos-bluetooth', name: 'Audífonos Bluetooth', category: 'Tecnología', description: 'Estuche de carga incluido', priceCents: 6499 },
+  { id: 'lampara-escritorio', name: 'Lámpara de escritorio', category: 'Hogar', description: 'Luz LED regulable', priceCents: 4599 },
+  { id: 'cargador-usb-c', name: 'Cargador USB-C', category: 'Tecnología', description: 'Carga rápida de práctica', priceCents: 3499 },
+];
+const storeProductsById = new Map(storeProducts.map((product) => [product.id, product]));
 
 function hashSessionToken(token) {
   return createHash('sha256').update(token).digest('hex');
@@ -92,6 +100,14 @@ function createDatabase(dbPath) {
       created_at TEXT NOT NULL,
       PRIMARY KEY (user_id, idempotency_key)
     );
+
+    CREATE TABLE IF NOT EXISTS virtual_cards (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      card_number TEXT NOT NULL UNIQUE,
+      cvv_secret TEXT NOT NULL,
+      balance_cents INTEGER NOT NULL DEFAULT 0 CHECK (balance_cents >= 0),
+      issued_at TEXT NOT NULL
+    );
   `);
 
   return database;
@@ -170,6 +186,53 @@ export function createApp({
     JOIN users ON users.id = sessions.user_id
     WHERE sessions.token_hash = ? AND sessions.expires_at > ?
   `);
+
+  function calculateVirtualCardCvv(cvvSecret, timestamp = Date.now()) {
+    const rotationSlot = Math.floor(timestamp / 60_000);
+    const rotationOffset = Number.parseInt(cvvSecret.slice(0, 8), 16) % 900;
+    return String(100 + ((rotationSlot + rotationOffset) % 900));
+  }
+
+  function getVirtualCard(userId) {
+    let card = database.prepare(`
+      SELECT virtual_cards.card_number, virtual_cards.cvv_secret, virtual_cards.balance_cents,
+        virtual_cards.issued_at, users.full_name
+      FROM virtual_cards JOIN users ON users.id = virtual_cards.user_id
+      WHERE virtual_cards.user_id = ?
+    `).get(userId);
+    if (!card) {
+      let cardNumber;
+      do {
+        cardNumber = `9999${String(randomInt(0, 1_000_000_000_000)).padStart(12, '0')}`;
+      } while (database.prepare('SELECT 1 FROM virtual_cards WHERE card_number = ?').get(cardNumber));
+      const issuedAt = new Date().toISOString();
+      database.prepare(`
+        INSERT INTO virtual_cards (user_id, card_number, cvv_secret, balance_cents, issued_at)
+        VALUES (?, ?, ?, 0, ?)
+      `).run(userId, cardNumber, randomBytes(32).toString('hex'), issuedAt);
+      card = database.prepare(`
+        SELECT virtual_cards.card_number, virtual_cards.cvv_secret, virtual_cards.balance_cents,
+          virtual_cards.issued_at, users.full_name
+        FROM virtual_cards JOIN users ON users.id = virtual_cards.user_id
+        WHERE virtual_cards.user_id = ?
+      `).get(userId);
+    }
+
+    const issuedAt = new Date(card.issued_at);
+    const expiresAt = new Date(issuedAt);
+    expiresAt.setFullYear(expiresAt.getFullYear() + 4);
+    const cvvValidUntil = (Math.floor(Date.now() / 60_000) + 1) * 60_000;
+    return {
+      cardNumber: card.card_number,
+      cardholder: card.full_name,
+      issuedAt: card.issued_at,
+      expiresAt: `${String(expiresAt.getMonth() + 1).padStart(2, '0')}/${String(expiresAt.getFullYear()).slice(-2)}`,
+      balanceCents: card.balance_cents,
+      cvv: calculateVirtualCardCvv(card.cvv_secret),
+      cvvValidUntil,
+      isDemo: true,
+    };
+  }
 
   function requireUser(request, response, next) {
     const token = readSessionToken(request);
@@ -312,6 +375,83 @@ export function createApp({
     return response.json({ user: user ? publicUser(user) : null });
   });
 
+  app.get('/api/store/products', requireUser, (request, response) => {
+    response.json({ products: storeProducts });
+  });
+
+  app.get('/api/card', requireUser, (request, response) => {
+    response.json({ card: getVirtualCard(request.user.id) });
+  });
+
+  app.post('/api/card/transfers', transactionLimiter, requireUser, (request, response) => {
+    const amountCents = parseAmount(request.body?.amount);
+    const idempotencyKey = String(request.get('Idempotency-Key') ?? '');
+    if (!/^[A-Za-z0-9_-]{16,80}$/.test(idempotencyKey)) {
+      return response.status(400).json({ error: 'Falta una clave válida para identificar esta transferencia.' });
+    }
+    if (amountCents === null || amountCents <= 0 || amountCents > maximumOpeningBalance) {
+      return response.status(400).json({ error: 'El importe debe ser mayor que $0 y no superar $1,000,000.' });
+    }
+
+    getVirtualCard(request.user.id);
+    try {
+      database.exec('BEGIN IMMEDIATE;');
+      const user = database.prepare('SELECT id, account_number, full_name, balance_cents FROM users WHERE id = ?')
+        .get(request.user.id);
+      const card = database.prepare('SELECT card_number, balance_cents FROM virtual_cards WHERE user_id = ?')
+        .get(request.user.id);
+      const requestHash = createHash('sha256').update(JSON.stringify({ type: 'card_transfer', amountCents })).digest('hex');
+      const previous = database.prepare(`
+        SELECT request_hash, response_json FROM idempotency_requests
+        WHERE user_id = ? AND idempotency_key = ?
+      `).get(user.id, idempotencyKey);
+      if (previous) {
+        database.exec('ROLLBACK;');
+        if (previous.request_hash !== requestHash) {
+          return response.status(409).json({ error: 'Esta clave ya se usó con un importe distinto.' });
+        }
+        const result = JSON.parse(previous.response_json);
+        const currentUser = database.prepare('SELECT id, account_number, full_name, balance_cents FROM users WHERE id = ?')
+          .get(user.id);
+        const currentCard = database.prepare('SELECT balance_cents FROM virtual_cards WHERE user_id = ?').get(user.id);
+        return response.status(200).json({
+          ...result,
+          user: publicUser(currentUser),
+          cardBalanceCents: currentCard.balance_cents,
+          message: 'La transferencia ya estaba registrada; no se duplicó.',
+        });
+      }
+      if (user.balance_cents < amountCents) {
+        database.exec('ROLLBACK;');
+        return response.status(400).json({ error: 'El saldo principal no alcanza para esta transferencia.' });
+      }
+
+      const createdAt = new Date().toISOString();
+      const mainBalanceCents = user.balance_cents - amountCents;
+      const cardBalanceCents = card.balance_cents + amountCents;
+      database.prepare('UPDATE users SET balance_cents = ? WHERE id = ?').run(mainBalanceCents, user.id);
+      database.prepare('UPDATE virtual_cards SET balance_cents = ? WHERE user_id = ?').run(cardBalanceCents, user.id);
+      database.prepare(`
+        INSERT INTO transactions (user_id, type, amount_cents, description, created_at)
+        VALUES (?, 'card_funding', ?, ?, ?)
+      `).run(user.id, amountCents, `Transferencia al saldo de tarjeta virtual · ••${card.card_number.slice(-4)}`, createdAt);
+      const result = {
+        user: publicUser({ ...user, balance_cents: mainBalanceCents }),
+        cardBalanceCents,
+        message: 'Saldo transferido a tu tarjeta virtual.',
+      };
+      database.prepare(`
+        INSERT INTO idempotency_requests (user_id, idempotency_key, request_hash, response_json, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(user.id, idempotencyKey, requestHash, JSON.stringify(result), createdAt);
+      database.exec('COMMIT;');
+      return response.status(201).json(result);
+    } catch {
+      database.exec('ROLLBACK;');
+      return response.status(500).json({ error: 'No se pudo transferir el saldo a la tarjeta.' });
+    }
+  });
+
   app.get('/api/transactions', requireUser, (request, response) => {
     const transactions = database.prepare(`
       SELECT id, type, amount_cents AS amountCents, description, created_at AS createdAt
@@ -336,7 +476,10 @@ export function createApp({
 
   app.post('/api/transactions', transactionLimiter, requireUser, (request, response) => {
     const type = String(request.body?.type ?? '');
-    const amountCents = parseAmount(request.body?.amount);
+    let amountCents = type === 'purchase' ? null : parseAmount(request.body?.amount);
+    let purchaseItems = [];
+    const paymentMethod = type === 'purchase' ? String(request.body?.paymentMethod ?? 'wallet') : null;
+    const cardCvv = String(request.body?.cardCvv ?? '');
     const targetAccountNumber = String(request.body?.targetAccountNumber ?? '').trim();
     const serviceName = String(request.body?.serviceName ?? '').trim();
     const serviceReference = String(request.body?.serviceReference ?? '').trim();
@@ -345,12 +488,38 @@ export function createApp({
     if (!/^[A-Za-z0-9_-]{16,80}$/.test(idempotencyKey)) {
       return response.status(400).json({ error: 'Falta una clave válida para identificar esta operación.' });
     }
-    if (!['deposit', 'withdraw', 'transfer', 'payment'].includes(type)) {
+    if (!['deposit', 'withdraw', 'transfer', 'payment', 'purchase'].includes(type)) {
       return response.status(400).json({ error: 'Selecciona una operación válida.' });
+    }
+    if (type === 'purchase') {
+      if (!['wallet', 'virtual-card'].includes(paymentMethod)) {
+        return response.status(400).json({ error: 'Selecciona un método de pago de práctica válido.' });
+      }
+      const requestedItems = request.body?.items;
+      if (!Array.isArray(requestedItems) || requestedItems.length < 1 || requestedItems.length > 8) {
+        return response.status(400).json({ error: 'El carrito debe incluir entre 1 y 8 productos.' });
+      }
+
+      const seenProductIds = new Set();
+      purchaseItems = [];
+      amountCents = 0;
+      for (const item of requestedItems) {
+        const productId = String(item?.productId ?? '');
+        const quantity = item?.quantity;
+        const product = storeProductsById.get(productId);
+        if (!product || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 10 || seenProductIds.has(productId)) {
+          return response.status(400).json({ error: 'El carrito contiene un producto o cantidad no válida.' });
+        }
+        seenProductIds.add(productId);
+        amountCents += product.priceCents * quantity;
+        purchaseItems.push({ productId, name: product.name, quantity });
+      }
+      purchaseItems.sort((left, right) => left.productId.localeCompare(right.productId));
     }
     if (amountCents === null || amountCents <= 0 || amountCents > maximumOpeningBalance) {
       return response.status(400).json({ error: 'El importe debe ser mayor que $0 y no superar $1,000,000.' });
     }
+    if (type === 'purchase' && paymentMethod === 'virtual-card') getVirtualCard(request.user.id);
 
     try {
       database.exec('BEGIN IMMEDIATE;');
@@ -360,6 +529,9 @@ export function createApp({
         database.exec('ROLLBACK;');
         return response.status(401).json({ error: 'Inicia sesión para continuar.' });
       }
+      const purchaseCard = type === 'purchase' && paymentMethod === 'virtual-card'
+        ? database.prepare('SELECT card_number, cvv_secret, balance_cents FROM virtual_cards WHERE user_id = ?').get(sender.id)
+        : null;
 
       const requestHash = createHash('sha256').update(JSON.stringify({
         type,
@@ -367,6 +539,8 @@ export function createApp({
         targetAccountNumber: type === 'transfer' ? targetAccountNumber : null,
         serviceName: type === 'payment' ? serviceName : null,
         serviceReference: type === 'payment' ? serviceReference : null,
+        paymentMethod: type === 'purchase' ? paymentMethod : null,
+        items: type === 'purchase' ? purchaseItems.map(({ productId, quantity }) => ({ productId, quantity })) : null,
       })).digest('hex');
       const previousRequest = database.prepare(`
         SELECT request_hash, response_json FROM idempotency_requests
@@ -385,8 +559,18 @@ export function createApp({
         return response.status(200).json({
           ...previousResponse,
           user: publicUser(currentUser),
+          ...(purchaseCard ? { cardBalanceCents: purchaseCard.balance_cents } : {}),
           message: 'La operación ya estaba registrada; no se duplicó.',
         });
+      }
+
+      if (purchaseCard && cardCvv !== calculateVirtualCardCvv(purchaseCard.cvv_secret)) {
+        database.exec('ROLLBACK;');
+        return response.status(400).json({ error: 'El CVV de la tarjeta virtual cambió o no coincide. Actualiza el código e inténtalo de nuevo.' });
+      }
+      if (purchaseCard && purchaseCard.balance_cents < amountCents) {
+        database.exec('ROLLBACK;');
+        return response.status(400).json({ error: 'El saldo de la tarjeta virtual no alcanza para esta compra.' });
       }
 
       let recipient = null;
@@ -418,7 +602,8 @@ export function createApp({
         }
       }
 
-      if (type !== 'deposit' && sender.balance_cents < amountCents) {
+      const chargesPracticeBalance = type !== 'purchase' || paymentMethod === 'wallet';
+      if (type !== 'deposit' && chargesPracticeBalance && sender.balance_cents < amountCents) {
         database.exec('ROLLBACK;');
         return response.status(400).json({ error: 'El saldo disponible no alcanza para esta operación.' });
       }
@@ -430,6 +615,8 @@ export function createApp({
         VALUES (?, ?, ?, ?, ?)
       `);
       let updatedBalance = sender.balance_cents;
+      let transactionId = null;
+      let updatedCardBalanceCents = null;
 
       if (type === 'deposit') {
         updatedBalance += amountCents;
@@ -443,6 +630,19 @@ export function createApp({
         updatedBalance -= amountCents;
         updateBalance.run(updatedBalance, sender.id);
         addTransaction.run(sender.id, 'payment', amountCents, `Pago ${serviceName} · ${serviceReference}`, createdAt);
+      } else if (type === 'purchase') {
+        if (paymentMethod === 'wallet') {
+          updatedBalance -= amountCents;
+          updateBalance.run(updatedBalance, sender.id);
+        } else {
+          updatedCardBalanceCents = purchaseCard.balance_cents - amountCents;
+          database.prepare('UPDATE virtual_cards SET balance_cents = ? WHERE user_id = ?')
+            .run(updatedCardBalanceCents, sender.id);
+        }
+        const methodLabel = paymentMethod === 'wallet' ? 'saldo principal' : 'tarjeta virtual';
+        const purchaseDescription = `Compra de prueba (${methodLabel}) · ${purchaseItems.map((item) => `${item.quantity} × ${item.name}`).join(', ')}`;
+        const purchase = addTransaction.run(sender.id, 'purchase', amountCents, purchaseDescription, createdAt);
+        transactionId = Number(purchase.lastInsertRowid);
       } else {
         updatedBalance -= amountCents;
         updateBalance.run(updatedBalance, sender.id);
@@ -453,7 +653,9 @@ export function createApp({
 
       const result = {
         user: publicUser({ ...sender, balance_cents: updatedBalance }),
-        message: 'Operación registrada.',
+        message: type === 'purchase' ? 'Compra de prueba aprobada.' : 'Operación registrada.',
+        ...(transactionId ? { transactionId } : {}),
+        ...(updatedCardBalanceCents !== null ? { cardBalanceCents: updatedCardBalanceCents } : {}),
       };
       database.prepare(`
         INSERT INTO idempotency_requests (user_id, idempotency_key, request_hash, response_json, created_at)
@@ -467,7 +669,8 @@ export function createApp({
     }
   });
 
-  app.get('/', (request, response) => response.redirect(302, '/HTML/'));
+  app.get('/', (request, response) => response.redirect(302, '/HTML/login.html'));
+  app.get('/HTML/', (request, response) => response.redirect(302, '/HTML/login.html'));
   app.use('/api', (request, response) => response.status(404).json({ error: 'Operación no encontrada.' }));
   app.use(express.static(appDirectory));
   app.use((error, request, response, next) => {

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Iniciar sesión | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-2">
+    <script src="../JS/Auth.js" defer></script>
+  </head>
+  <body data-auth-page="login">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/login.html" aria-label="TuBanco, inicio"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a>
+        <span class="environment-label"><span class="status-dot"></span> Acceso de clientes</span>
+      </header>
+      <main>
+        <section class="auth-layout" aria-labelledby="auth-title">
+          <div class="intro-panel">
+            <p class="eyebrow">BANCA DIGITAL DE PRÁCTICA</p>
+            <h1 id="auth-title">Tus finanzas, listas para avanzar.</h1>
+            <p class="intro-copy">Un espacio privado para consultar tu cuenta, mover fondos y atender servicios cotidianos.</p>
+            <div class="intro-rule"><span></span><span></span><span></span></div>
+            <ul class="access-highlights" aria-label="Funciones disponibles">
+              <li><span aria-hidden="true">01</span> Transferencias entre cuentas</li>
+              <li><span aria-hidden="true">02</span> Pagos y movimientos de práctica</li>
+              <li><span aria-hidden="true">03</span> Acceso protegido a tu cuenta</li>
+            </ul>
+          </div>
+          <section class="auth-panel" aria-labelledby="login-title">
+            <div class="auth-heading"><span class="section-kicker">TU ESPACIO PERSONAL</span><h2 id="login-title">Bienvenido</h2><p>Ingresa con tu número de cuenta y contraseña.</p></div>
+            <p class="form-message" data-auth-message role="status" aria-live="polite"></p>
+            <form id="login-form" class="auth-form">
+              <label for="login-account">Número de cuenta</label>
+              <input id="login-account" name="accountNumber" inputmode="numeric" autocomplete="username" minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="Tus 10 dígitos" required>
+              <label for="login-password">Contraseña</label>
+              <div class="password-field"><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required><button class="visibility-toggle" type="button" aria-controls="login-password" aria-pressed="false">Mostrar</button></div>
+              <label class="remember-account"><input id="remember-account" type="checkbox"><span>Recordar número en este dispositivo</span></label>
+              <button class="button button-primary" type="submit">Iniciar sesión <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="auth-switch">¿Aún no tienes cuenta? <a href="/HTML/register.html">Crear cuenta</a></p>
+            <p class="privacy-note">Tus datos de práctica se guardan localmente en este equipo.</p>
+          </section>
+        </section>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Entorno local de pruebas</span></footer>
+    </div>
+  </body>
+</html>

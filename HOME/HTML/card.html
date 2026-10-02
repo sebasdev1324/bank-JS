@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Tarjeta virtual | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-6">
+    <script src="../JS/Dashboard.js?v=20261002-1" defer></script>
+  </head>
+  <body data-page="card">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a>
+          <a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a>
+          <a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a>
+          <a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a>
+        </nav>
+        <details class="header-menu" id="account-menu">
+          <summary class="account-menu-trigger"><span class="account-menu-copy"><span data-user-name></span><small>Cuenta <span data-account-number></span></small></span><span class="account-avatar" data-user-initial aria-hidden="true">C</span></summary>
+          <div class="menu-popover account-popover"><a class="popover-link" href="/HTML/security.html">Seguridad</a><a class="popover-link" href="/HTML/settings.html">Configuración</a><button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button></div>
+        </details>
+      </header>
+      <main class="dashboard card-page">
+        <div class="dashboard-heading"><div><p class="section-kicker">CUENTA DIGITAL</p><h1>Tarjeta virtual</h1></div><p class="balance-inline">Saldo principal <strong data-main-balance>$0.00</strong></p></div>
+        <p class="form-message" data-page-message role="status" aria-live="polite"></p>
+        <div class="card-workspace">
+          <section class="card-display" aria-label="Tarjeta virtual">
+            <button class="debit-card" type="button" data-card-flip aria-label="Girar tarjeta para ver los datos" aria-pressed="false">
+              <span class="debit-card-inner">
+                <span class="debit-card-face debit-card-front">
+                  <span class="card-topline"><span class="card-brand">TU<span>BANCO</span></span><span class="card-chip" aria-hidden="true"><span></span></span></span>
+                  <span class="card-front-label">SALDO DISPONIBLE</span>
+                  <strong class="card-front-balance" data-card-balance>••••••</strong>
+                  <span class="card-front-bottom"><span data-card-holder></span><span>VIRTUAL</span></span>
+                </span>
+                <span class="debit-card-face debit-card-back">
+                  <span class="card-magnetic-strip" aria-hidden="true"></span>
+                  <span class="card-back-number-label">NÚMERO DE TARJETA</span>
+                  <strong class="card-number" data-card-number>•••• •••• •••• ••••</strong>
+                  <span class="card-back-details">
+                    <span><small>EMITIDA</small><strong data-card-issued>--/--/----</strong></span>
+                    <span><small>VENCE</small><strong data-card-expiry>--/--</strong></span>
+                    <span><small>CVV DEMO</small><strong data-card-cvv>---</strong></span>
+                  </span>
+                  <span class="card-cvv-timer">Renueva en <strong data-cvv-countdown>60</strong> s</span>
+                  <span class="card-back-holder" data-card-holder-back></span>
+                </span>
+              </span>
+            </button>
+            <p class="card-flip-hint" data-card-flip-hint>Selecciona la tarjeta para girarla</p>
+            <p class="card-demo-disclosure">Tarjeta virtual de demostración: el número y CVV no pertenecen a una red de pagos y no sirven para compras reales.</p>
+          </section>
+          <section class="card-transfer-panel" aria-labelledby="card-transfer-title">
+            <p class="section-kicker">MOVER SALDO</p>
+            <h2 id="card-transfer-title">Pasar saldo a la tarjeta</h2>
+            <p class="card-transfer-copy">El dinero se mueve de tu saldo principal a esta tarjeta virtual.</p>
+            <div class="card-balance-summary"><span>Saldo de tarjeta</span><strong data-card-balance-summary>$0.00</strong></div>
+            <form class="card-transfer-form" data-card-transfer-form>
+              <label for="card-transfer-amount">Importe a transferir</label>
+              <div class="money-input"><span aria-hidden="true">$</span><input id="card-transfer-amount" name="amount" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+              <button class="button button-primary" type="submit">Transferir saldo <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="card-transfer-note">Transferencia simulada e inmediata. El total de ambas cuentas no cambia.</p>
+          </section>
+        </div>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Tarjeta virtual de demostración</span></footer>
+    </div>
+  </body>
+</html>

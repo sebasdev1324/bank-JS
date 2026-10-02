@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Comprobante | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-3">
+    <script src="../JS/Dashboard.js?v=20261002-1" defer></script>
+  </head>
+  <body data-page="receipt">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a>
+          <a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a>
+          <a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a>
+          <a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a>
+        </nav>
+        <details class="header-menu" id="account-menu">
+          <summary class="account-menu-trigger"><span class="account-menu-copy"><span data-user-name></span><small>Cuenta <span data-account-number></span></small></span><span class="account-avatar" data-user-initial aria-hidden="true">C</span></summary>
+          <div class="menu-popover account-popover"><a class="popover-link" href="/HTML/security.html">Seguridad</a><a class="popover-link" href="/HTML/settings.html">Configuración</a><button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button></div>
+        </details>
+      </header>
+      <main class="dashboard receipt-page">
+        <p class="section-kicker">DETALLE DE OPERACIÓN</p>
+        <h1>Comprobante</h1>
+        <p class="form-message" data-page-message role="status" aria-live="polite"></p>
+        <dl class="receipt-details receipt-page-details">
+          <div><dt>Referencia</dt><dd data-receipt-reference></dd></div>
+          <div><dt>Operación</dt><dd data-receipt-type></dd></div>
+          <div><dt>Fecha</dt><dd data-receipt-date></dd></div>
+          <div><dt>Descripción</dt><dd data-receipt-description></dd></div>
+          <div><dt>Importe</dt><dd data-receipt-amount></dd></div>
+        </dl>
+        <a class="button button-quiet back-link" href="/HTML/activity.html">← Volver a movimientos</a>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Un espacio para aprender con tranquilidad</span></footer>
+    </div>
+  </body>
+</html>

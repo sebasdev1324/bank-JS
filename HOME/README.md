@@ -16,7 +16,7 @@ npm install
 npm start
 ```
 
-Abre `http://localhost:3000/`; por defecto ningún otro equipo puede conectarse. Para ejecutar las pruebas de API y persistencia: `npm test`.
+Abre `http://localhost:3000/`; por defecto ningún otro equipo puede conectarse. En Windows también puedes iniciar el servidor y abrir la aplicación desde `ABRIR_TUBANCO.bat`. No uses "Abrir archivo" para las otras páginas HTML: necesitan el servidor para comunicarse con la API. Para ejecutar las pruebas de API y persistencia: `npm test`.
 
 ## Acceso opcional desde otro dispositivo de la misma red
 
@@ -43,6 +43,9 @@ La conexión entre dispositivos usa HTTP sin cifrado: úsala solo en una red pri
 - Iniciar sesión, consultar saldo e historial, y cerrar sesión.
 - Hacer depósitos, retiros y transferencias entre cuentas; el historial refleja ambos lados de cada transferencia.
 - Pagar agua, electricidad, gas, internet o telefonía móvil con referencia de cliente.
+- Hacer compras online simuladas desde una tienda de práctica; los precios se validan en el servidor y los cargos usan el saldo ficticio de la cuenta.
+- La tarjeta de la tienda es solo una simulación: los datos se validan en el navegador y nunca se envían ni se guardan. No introduzcas una tarjeta real.
+- Consultar una tarjeta virtual de demostración con saldo separado, giro de 180° y CVV rotatorio; permite pasar saldo principal a la tarjeta, sin conexión a redes de pago.
 - Navegar por resumen, servicios, movimientos y seguridad; ocultar saldo y revisar actividad reciente desde menús.
 - Revisar operación, origen, destino e importe en una confirmación antes de enviar cada transacción.
 - Reintentar una solicitud de transacción con la misma clave sin duplicar el movimiento; cada clave queda asociada a una cuenta y a sus datos originales.

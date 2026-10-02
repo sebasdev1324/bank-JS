@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Tienda de práctica | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-5">
+    <script src="../JS/Dashboard.js?v=20261002-1" defer></script>
+  </head>
+  <body data-page="store">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a>
+          <a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a>
+          <a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a>
+          <a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a>
+        </nav>
+        <details class="header-menu" id="account-menu">
+          <summary class="account-menu-trigger"><span class="account-menu-copy"><span data-user-name></span><small>Cuenta <span data-account-number></span></small></span><span class="account-avatar" data-user-initial aria-hidden="true">C</span></summary>
+          <div class="menu-popover account-popover"><a class="popover-link" href="/HTML/security.html">Seguridad</a><a class="popover-link" href="/HTML/settings.html">Configuración</a><button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button></div>
+        </details>
+      </header>
+      <main class="dashboard store-page">
+        <div class="dashboard-heading">
+          <div><p class="section-kicker">COMERCIO DE PRÁCTICA</p><h1>Tienda online</h1></div>
+          <p class="balance-inline">Saldo disponible <strong data-balance>$0.00</strong></p>
+        </div>
+        <p class="form-message" data-page-message role="status" aria-live="polite"></p>
+        <p class="store-simulation-note">Tienda de prueba sin cargos reales. Puedes pagar con saldo de práctica o simular una tarjeta ficticia.</p>
+        <div class="store-layout" data-store-content>
+          <section class="store-catalog" aria-labelledby="catalog-title">
+            <div class="history-heading"><div><p class="section-kicker">CATÁLOGO DEMO</p><h2 id="catalog-title">Productos</h2></div><span class="service-count">5 artículos</span></div>
+            <div class="store-product-grid" data-store-products><p class="empty-history">Cargando productos…</p></div>
+          </section>
+          <aside class="store-cart" aria-labelledby="cart-title">
+            <div class="store-cart-heading"><div><p class="section-kicker">TU PEDIDO</p><h2 id="cart-title">Carrito</h2></div><span class="transaction-count" data-cart-count>0 productos</span></div>
+            <div class="store-cart-items" data-cart-items><p class="empty-history">Tu carrito está vacío.</p></div>
+            <div class="store-cart-total"><span>Total</span><strong data-cart-total>$0.00</strong></div>
+            <button class="button button-primary store-checkout" type="button" data-checkout disabled>Confirmar compra simulada <span aria-hidden="true">→</span></button>
+            <p class="store-cart-note">El importe final se calcula y valida en el servidor antes de descontar el saldo.</p>
+          </aside>
+        </div>
+        <section class="store-payment-step" data-payment-step hidden aria-labelledby="payment-step-title">
+          <div class="store-payment-heading"><div><p class="section-kicker">FINALIZAR PEDIDO</p><h2 id="payment-step-title">Método de pago</h2></div><strong data-payment-total></strong></div>
+          <fieldset class="payment-method-options">
+            <legend>Elige cómo pagar esta compra de prueba</legend>
+            <label class="payment-method-option"><input type="radio" name="paymentMethod" value="virtual-card" checked><span><strong>Mi tarjeta virtual ···· <span data-store-card-last-four>----</span></strong><small>Disponible en tarjeta: <span data-store-card-balance>$0.00</span></small></span></label>
+            <label class="payment-method-option"><input type="radio" name="paymentMethod" value="wallet"><span><strong>Saldo principal</strong><small>Disponible: <span data-store-main-balance>$0.00</span></small></span></label>
+          </fieldset>
+          <form class="demo-card-form" data-virtual-card-form data-virtual-card-fields novalidate>
+            <div class="store-current-cvv"><span>CVV vigente de tu tarjeta</span><strong data-store-current-cvv>---</strong><small>Cambia en <span data-store-cvv-countdown>60</span> s</small></div>
+            <div class="operation-field"><label for="virtual-card-cvv">Confirma el CVV actual</label><input id="virtual-card-cvv" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="3 dígitos"></div>
+            <p class="store-card-warning">La tarjeta y este CVV son de demostración. El CVV se verifica para esta compra y no se almacena.</p>
+          </form>
+          <div class="store-payment-actions"><button class="button button-quiet" type="button" data-back-to-cart>Volver al carrito</button><button class="button button-primary" type="button" data-confirm-purchase>Completar compra de prueba <span aria-hidden="true">→</span></button></div>
+        </section>
+        <section class="purchase-complete" data-purchase-complete hidden aria-labelledby="purchase-complete-title">
+          <p class="section-kicker">PEDIDO APROBADO</p>
+          <h2 id="purchase-complete-title">Compra de práctica completada</h2>
+          <p>El cargo se registró en tu historial. Esta operación no realizó un pago real.</p>
+          <div class="account-number-reveal"><span>REFERENCIA DE COMPRA</span><strong data-purchase-reference></strong></div>
+          <div class="purchase-complete-actions"><a class="button button-primary" data-purchase-receipt href="#">Ver comprobante <span aria-hidden="true">→</span></a><a class="button button-quiet" href="/HTML/store.html">Seguir comprando</a></div>
+        </section>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Simulación local de compras online</span></footer>
+    </div>
+  </body>
+</html>

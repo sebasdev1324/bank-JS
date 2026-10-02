@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Crear cuenta | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-2">
+    <script src="../JS/Auth.js" defer></script>
+  </head>
+  <body data-auth-page="register">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/login.html" aria-label="TuBanco, inicio"><span class="brand-mark" aria-hidden="true">T</span><span>tu<span class="brand-light">banco</span></span></a>
+        <span class="environment-label"><span class="status-dot"></span> Nueva cuenta</span>
+      </header>
+      <main>
+        <section class="auth-layout register-layout" aria-labelledby="auth-title">
+          <div class="intro-panel">
+            <p class="eyebrow">EMPIEZA AQUÍ</p>
+            <h1 id="auth-title">Una cuenta de práctica, a tu nombre.</h1>
+            <p class="intro-copy">Crea tus credenciales y guarda el número de cuenta que te asignaremos al terminar.</p>
+            <div class="intro-rule"><span></span><span></span><span></span></div>
+            <ul class="access-highlights" aria-label="Características de la cuenta">
+              <li><span aria-hidden="true">01</span> Número de cuenta único</li>
+              <li><span aria-hidden="true">02</span> Saldo y operaciones ficticios</li>
+              <li><span aria-hidden="true">03</span> Datos guardados localmente</li>
+            </ul>
+          </div>
+          <section class="auth-panel" aria-labelledby="register-title">
+            <div class="auth-heading"><span class="section-kicker">ALTA DE CLIENTE</span><h2 id="register-title">Crear cuenta</h2><p>Completa tus datos para comenzar.</p></div>
+            <p class="form-message" data-auth-message role="status" aria-live="polite"></p>
+            <form id="register-form" class="auth-form">
+              <label for="register-name">Nombre completo</label>
+              <input id="register-name" name="fullName" autocomplete="name" minlength="2" maxlength="80" placeholder="Como quieres que te llamemos" required>
+              <label for="register-password">Contraseña</label>
+              <div class="password-field"><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="12 caracteres o más" required><button class="visibility-toggle" type="button" aria-controls="register-password" aria-pressed="false">Mostrar</button></div>
+              <div class="password-strength"><div class="strength-track" role="meter" aria-label="Fortaleza de la contraseña" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div><p data-password-strength-copy aria-live="polite">Combina longitud, letras y números.</p></div>
+              <label for="register-confirm-password">Confirmar contraseña</label>
+              <div class="password-field"><input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Escríbela de nuevo" required><button class="visibility-toggle" type="button" aria-controls="register-confirm-password" aria-pressed="false">Mostrar</button></div>
+              <label for="register-balance">Saldo inicial de práctica</label>
+              <div class="money-input"><span aria-hidden="true">$</span><input id="register-balance" name="initialBalance" type="number" min="0" max="1000000" step="0.01" value="5000.00" inputmode="decimal" required></div>
+              <label for="register-invite-code">Código de invitación <span class="optional-label">Opcional</span></label>
+              <input id="register-invite-code" name="inviteCode" type="password" autocomplete="off" maxlength="128" placeholder="Si te proporcionaron uno">
+              <button class="button button-primary" type="submit">Crear cuenta <span aria-hidden="true">→</span></button>
+            </form>
+            <section class="registration-success" data-registration-success hidden aria-labelledby="success-title">
+              <p class="section-kicker">CUENTA CREADA</p>
+              <h2 id="success-title">Guarda tu número de cuenta</h2>
+              <p>Lo necesitarás junto con tu contraseña para iniciar sesión.</p>
+              <div class="account-number-reveal"><span>NÚMERO DE CUENTA</span><strong data-new-account-number></strong></div>
+              <button class="button button-quiet copy-account-button" type="button" data-copy-account>Copiar número</button>
+              <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+              <a class="button button-primary success-continue" href="/HTML/dashboard.html">Continuar al panel <span aria-hidden="true">→</span></a>
+            </section>
+            <p class="auth-switch" data-login-link>¿Ya tienes cuenta? <a href="/HTML/login.html">Iniciar sesión</a></p>
+            <p class="privacy-note">Cuenta y saldo de práctica; no conectados a un banco real.</p>
+          </section>
+        </section>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Entorno local de pruebas</span></footer>
+    </div>
+  </body>
+</html>

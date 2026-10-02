@@ -69,7 +69,12 @@ async function requestApi(url, options = {}) {
 		...options,
 		headers: { 'Content-Type': 'application/json', ...options.headers },
 	});
-	const result = await response.json();
+	let result;
+	try {
+		result = await response.json();
+	} catch {
+		throw new Error('El servidor respondió con datos inválidos. Recarga la página e inténtalo de nuevo.');
+	}
 	if (!response.ok) throw new Error(result.error ?? 'No se pudo completar la solicitud.');
 	return result;
 }
@@ -445,13 +450,11 @@ loginForm.addEventListener('submit', async (event) => {
 	}
 
 	try {
-		const result = await requestApi('/api/login', {
+		await requestApi('/api/login', {
 			method: 'POST',
 			body: JSON.stringify({ accountNumber, password }),
 		});
-		loginForm.reset();
-		resetPasswordVisibility(loginForm);
-		await showDashboard(result.user);
+		window.location.assign('/HTML/dashboard.html');
 	} catch (error) {
 		showMessage(authMessage, error.message);
 	} finally {
@@ -473,7 +476,7 @@ registerForm.addEventListener('submit', async (event) => {
 	setFormBusy(registerForm, true);
 
 	try {
-		const result = await requestApi('/api/register', {
+		await requestApi('/api/register', {
 			method: 'POST',
 			body: JSON.stringify({
 				fullName: formData.get('fullName'),
@@ -482,10 +485,7 @@ registerForm.addEventListener('submit', async (event) => {
 				inviteCode: formData.get('inviteCode'),
 			}),
 		});
-		registerForm.reset();
-		resetPasswordVisibility(registerForm);
-		updatePasswordStrength();
-		await showDashboard(result.user, `Cuenta ${result.user.accountNumber} creada correctamente.`);
+		window.location.assign('/HTML/dashboard.html');
 	} catch (error) {
 		showMessage(authMessage, error.message);
 	} finally {
@@ -616,7 +616,7 @@ document.querySelector('#logout-button').addEventListener('click', async (event)
 });
 
 requestApi('/api/me')
-	.then(({ user }) => user && showDashboard(user))
+	.then(({ user }) => user && window.location.replace('/HTML/dashboard.html'))
 	.catch(() => {
 		showMessage(authMessage, 'No se pudo establecer conexión con el servidor.');
 	});

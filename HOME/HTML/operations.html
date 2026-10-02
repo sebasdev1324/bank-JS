@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Operaciones | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-3">
+    <script src="../JS/Dashboard.js?v=20261002-1" defer></script>
+  </head>
+  <body data-page="operations">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>tu<span class="brand-light">banco</span></span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a>
+          <a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a>
+          <a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a>
+          <a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a>
+        </nav>
+        <details class="header-menu" id="account-menu">
+          <summary class="account-menu-trigger">
+            <span class="account-menu-copy">
+              <span data-user-name></span>
+              <small>Cuenta <span data-account-number></span></small>
+            </span>
+            <span class="account-avatar" data-user-initial aria-hidden="true">C</span>
+          </summary>
+          <div class="menu-popover account-popover">
+            <a class="popover-link" href="/HTML/security.html">Seguridad</a>
+            <a class="popover-link" href="/HTML/settings.html">Configuración</a>
+            <button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button>
+          </div>
+        </details>
+      </header>
+    <main class="dashboard"><div class="dashboard-heading"><div><p class="section-kicker">GESTIÓN DE CUENTA</p><h1>Operaciones</h1></div><p class="balance-inline">Disponible <strong data-balance>$0.00</strong></p></div><p class="form-message" data-page-message role="status" aria-live="polite"></p>
+      <section class="operations-section standalone-operation"><div class="history-heading"><div><p class="section-kicker">MOVIMIENTO NUEVO</p><h2 data-operation-name>Depósito</h2></div></div><form id="transaction-form" class="transaction-form standalone-form">
+        <div class="operation-field" data-field="target" hidden><label for="target-account">Cuenta destino</label><input id="target-account" name="targetAccountNumber" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10 dígitos"></div>
+        <div class="service-selection" data-field="service" hidden><span class="service-selection-label">Servicio elegido</span><strong data-selected-service></strong><a href="/HTML/services.html" data-service-back hidden>Elegir otro servicio</a></div>
+        <div class="operation-field" data-field="reference" hidden><label for="service-reference">Referencia de cliente</label><input id="service-reference" name="serviceReference" maxlength="32" placeholder="Ej. CLI-40218"></div>
+        <div class="operation-field"><label for="transaction-amount">Importe</label><div class="money-input"><span aria-hidden="true">$</span><input id="transaction-amount" name="amount" type="number" min="0.01" max="1000000" step="0.01" placeholder="0.00" required></div></div>
+        <button class="button button-primary operation-submit" type="submit">Confirmar operación <span aria-hidden="true">→</span></button>
+      </form><p class="field-hint">Las operaciones se registran como movimientos ficticios en esta cuenta de pruebas.</p></section>
+      </main>
+    <footer class="page-footer"><span>TuBanco</span><span>Un espacio para aprender con tranquilidad</span></footer></div></body>
+</html>

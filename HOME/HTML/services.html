@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f4f3">
+    <title>Servicios | TuBanco</title>
+    <link rel="stylesheet" href="../CSS/styles.css?v=20261002-2">
+    <script src="../JS/Dashboard.js?v=20261002-1" defer></script>
+  </head>
+  <body data-page="services">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/HTML/dashboard.html" aria-label="TuBanco, resumen">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>tu<span class="brand-light">banco</span></span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <a class="dashboard-nav-link" data-page-link="dashboard" href="/HTML/dashboard.html">Resumen</a>
+          <a class="dashboard-nav-link" data-page-link="operations" href="/HTML/operations.html">Operaciones</a>
+          <a class="dashboard-nav-link" data-page-link="services" href="/HTML/services.html">Servicios</a>
+          <a class="dashboard-nav-link" data-page-link="activity" href="/HTML/activity.html">Movimientos</a>
+        </nav>
+        <details class="header-menu" id="account-menu">
+          <summary class="account-menu-trigger">
+            <span class="account-menu-copy">
+              <span data-user-name></span>
+              <small>Cuenta <span data-account-number></span></small>
+            </span>
+            <span class="account-avatar" data-user-initial aria-hidden="true">C</span>
+          </summary>
+          <div class="menu-popover account-popover">
+            <a class="popover-link" href="/HTML/security.html">Seguridad</a>
+            <a class="popover-link" href="/HTML/settings.html">Configuración</a>
+            <button class="popover-link is-logout" type="button" data-logout>Cerrar sesión</button>
+          </div>
+        </details>
+      </header>
+      <main class="dashboard">
+        <div class="dashboard-heading">
+          <div>
+            <p class="section-kicker">PAGOS Y RECARGAS</p>
+            <h1>Servicios</h1>
+          </div>
+        </div>
+        <p class="form-message" data-page-message role="status" aria-live="polite"></p>
+        <div class="view-heading">
+          <div><p class="intro-copy">Elige un servicio para continuar con el pago de práctica.</p></div>
+          <span class="service-count">5 opciones</span>
+        </div>
+        <div class="service-grid">
+          <a class="service-card" href="/HTML/operations.html?type=payment&amp;service=Agua">
+            <span class="service-icon service-water" aria-hidden="true">≈</span>
+            <span class="service-card-copy"><strong>Agua</strong><small>Factura mensual</small></span>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="service-card" href="/HTML/operations.html?type=payment&amp;service=Electricidad">
+            <span class="service-icon service-power" aria-hidden="true">ϟ</span>
+            <span class="service-card-copy"><strong>Electricidad</strong><small>Factura mensual</small></span>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="service-card" href="/HTML/operations.html?type=payment&amp;service=Gas">
+            <span class="service-icon service-gas" aria-hidden="true">◒</span>
+            <span class="service-card-copy"><strong>Gas</strong><small>Factura mensual</small></span>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="service-card" href="/HTML/operations.html?type=payment&amp;service=Internet">
+            <span class="service-icon service-internet" aria-hidden="true">⌁</span>
+            <span class="service-card-copy"><strong>Internet</strong><small>Hogar y datos</small></span>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="service-card" href="/HTML/operations.html?type=payment&amp;service=Telefon%C3%ADa%20m%C3%B3vil">
+            <span class="service-icon service-mobile" aria-hidden="true">▯</span>
+            <span class="service-card-copy"><strong>Telefonía móvil</strong><small>Recarga y factura</small></span>
+            <span class="service-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <p class="disclaimer">Los pagos son simulados; no se conecta con proveedores externos.</p>
+      </main>
+      <footer class="page-footer"><span>TuBanco</span><span>Un espacio para aprender con tranquilidad</span></footer>
+    </div>
+  </body>
+</html>
