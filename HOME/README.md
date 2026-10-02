@@ -1,6 +1,6 @@
 # TuBanco: simulador bancario educativo
 
-Aplicación web de pruebas en red local. Los datos viven en una base SQLite de este equipo; el proyecto no está conectado a infraestructura bancaria ni diseñado para exponerse directamente a Internet.
+Aplicación web para pruebas pequeñas y privadas. Por defecto solo acepta conexiones desde este equipo (`127.0.0.1`). Los datos viven en una base SQLite local; el proyecto no está conectado a infraestructura bancaria ni diseñado para exponerse directamente a Internet.
 
 ## Requisitos
 
@@ -16,16 +16,25 @@ npm install
 npm start
 ```
 
-En el equipo anfitrión abre `http://localhost:3000/`. Para ejecutar las pruebas de API y persistencia: `npm test`.
+Abre `http://localhost:3000/`; por defecto ningún otro equipo puede conectarse. Para ejecutar las pruebas de API y persistencia: `npm test`.
 
-## Probar desde otro dispositivo de la misma red
+## Acceso opcional desde otro dispositivo de la misma red
+
+Para pruebas solo en este equipo, no cambies la configuración predeterminada. Si necesitas permitir temporalmente conexiones desde dispositivos de una red privada de confianza, inicia el servidor con `HOST=0.0.0.0` y limita el acceso en Windows Firewall a redes privadas. En PowerShell:
+
+```powershell
+$env:HOST = '0.0.0.0'
+npm start
+```
+
+Al terminar, cierra el servidor. No uses esta opción en una Wi-Fi pública ni abras el puerto en el router.
 
 1. Conecta ambos dispositivos a la misma red Wi-Fi privada.
 2. En Windows, ejecuta `ipconfig` y busca la dirección IPv4 del adaptador Wi-Fi activo.
 3. En el otro dispositivo abre `http://<DIRECCION-IP>:3000/`, sustituyendo el marcador por esa dirección.
 4. Si Windows Firewall pregunta, permite Node.js únicamente en redes privadas. No habilites acceso en redes públicas.
 
-El servidor escucha en las interfaces de red locales (`0.0.0.0`); puedes cambiar puerto o interfaz con `PORT` y `HOST`.
+Puedes cambiar el puerto con `PORT` y la interfaz con `HOST`. `0.0.0.0` expone el servidor a las interfaces de red disponibles; `127.0.0.1` lo mantiene accesible solo desde este equipo.
 La conexión entre dispositivos usa HTTP sin cifrado: úsala solo en una red privada de confianza, nunca en una Wi-Fi pública. Para acceso público se requiere HTTPS y una revisión de seguridad independiente.
 
 ## Primera versión

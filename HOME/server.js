@@ -483,10 +483,10 @@ export function createApp({
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT ?? 3000);
-  const host = process.env.HOST ?? '0.0.0.0';
+  const host = process.env.HOST ?? '127.0.0.1';
   const app = createApp();
   app.listen(port, host, () => {
     console.log(`TuBanco está disponible en http://localhost:${port}`);
-    if (host === '0.0.0.0') console.log('Para otro dispositivo de tu red, usa http://<IP-LOCAL-DE-ESTE-EQUIPO>:' + port);
+    if (host === '0.0.0.0') console.log('Atención: el servidor acepta conexiones de otros equipos de la red.');
   });
 }
